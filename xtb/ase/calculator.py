@@ -58,7 +58,7 @@ Supported keywords are
 from typing import List, Optional
 
 from ..utils import get_method, get_solvent
-from ..libxtb import VERBOSITY_MUTED
+from ..libxtb import VERBOSITY_MUTED, VERBOSITY_MINIMAL, VERBOSITY_FULL
 from ..interface import Calculator, XTBException
 import ase.calculators.calculator as ase_calc
 from ase.atoms import Atoms
@@ -86,6 +86,7 @@ class XTB(ase_calc.Calculator):
         "electronic_temperature": 300.0,
         "solvent": "None",
         "cache_api": True,
+        "verbosity": VERBOSITY_MINIMAL,
     }
 
     _res = None
@@ -129,6 +130,9 @@ class XTB(ase_calc.Calculator):
 
             if "solvent" in changed_parameters:
                 self._xtb.set_solvent(get_solvent(self.parameters.solvent))
+                
+            if "verbosity" in changed_parameters:
+                self._xtb.set_verbosity(self.parameters.verbosity)
 
         return changed_parameters
 
@@ -199,7 +203,7 @@ class XTB(ase_calc.Calculator):
                 _cell / Bohr,
                 _periodic,
             )
-            calc.set_verbosity(VERBOSITY_MUTED)
+            calc.set_verbosity(self.parameters.verbosity)
             calc.set_accuracy(self.parameters.accuracy)
             calc.set_electronic_temperature(self.parameters.electronic_temperature)
             calc.set_max_iterations(self.parameters.max_iterations)
